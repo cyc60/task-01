@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_DB=develop
+      - POSTGRES_USER=develop
+      - POSTGRES_PASSWORD=develop
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command:  bash -c "python wait_for_postgres.py && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./src:/srv/src
+    ports:
+      - "8000:8000"
+    links:
+      - postgres
+    environment:
+      - SECRET_KEY=secret
+      - DATABASE_URL=postgres://develop:develop@postgres/develop
+      - DJANGO_SETTINGS_MODULE=project.settings.production
